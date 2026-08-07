@@ -26,6 +26,21 @@ NOTE: Add new changes BELOW THIS COMMENT.
 
 ### Added
 
+- New optional DNS configuration property `listen_on_activated_fds`
+  (see the [Configuration wiki page][wiki-config]).  When set to `true` and
+  the process is started under systemd socket activation (`LISTEN_FDS` is
+  set), the plain DNS-over-UDP and DNS-over-TCP listeners are taken from the
+  inherited file descriptors instead of being bound directly.  This is
+  intended for deployments such as rootless Podman, where binding the port
+  from inside the container would otherwise mask the real client IP behind
+  the container gateway address.  It is a no-op, and defaults to `false`,
+  unless the process is actually socket-activated.
+
+    NOTE: This depends on `proxy.Config.ListenOnActivatedFDs`, which only
+    exists in this fork's dnsproxy dependency, pulled in via the
+    `replace github.com/AdguardTeam/dnsproxy => github.com/beechfuzz/dnsproxy`
+    directive in `go.mod`.  It is not available with upstream dnsproxy.
+
 - Bootstrap servers configuration now supports comments.
 
 - New property `"language"` in `POST /control/install/check_config` and `POST /control/install/configure` HTTP APIs.

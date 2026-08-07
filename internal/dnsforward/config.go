@@ -168,6 +168,26 @@ type Config struct {
 	// BootstrapPreferIPv6, if true, instructs the bootstrapper to prefer IPv6
 	// addresses to IPv4 ones for DoH, DoQ, and DoT.
 	BootstrapPreferIPv6 bool `yaml:"bootstrap_prefer_ipv6"`
+
+	// ListenOnActivatedFDs, if true, makes the plain DNS-over-UDP and
+	// DNS-over-TCP listeners come from file descriptors inherited via
+	// systemd socket activation (the LISTEN_FDS / LISTEN_PID protocol)
+	// instead of binding [Config.UDPListenAddrs] and [Config.TCPListenAddrs]
+	// directly.
+	//
+	// This exists for deployments that run AdGuard Home under systemd
+	// socket activation, notably rootless Podman setups where binding a
+	// low port from inside the container loses the real client IP (it gets
+	// NATed to the gateway address); handing the already-bound socket to
+	// the process from the outside avoids that.
+	//
+	// It is a no-op unless the process is actually started with LISTEN_FDS
+	// set by the supervisor, and it defaults to false, so it does not
+	// affect normal (non-activated) startup.  It requires
+	// [proxy.Config.ListenOnActivatedFDs], which only exists in this
+	// repository's forked dnsproxy dependency (see the replace directive in
+	// go.mod).
+	ListenOnActivatedFDs bool `yaml:"listen_on_activated_fds"`
 }
 
 // EDNSClientSubnet is the settings list for EDNS Client Subnet.
@@ -804,6 +824,7 @@ func (s *Server) preparePlain(ctx context.Context, proxyConf *proxy.Config) (err
 	if s.conf.ServePlainDNS {
 		proxyConf.UDPListenAddr = s.conf.UDPListenAddrs
 		proxyConf.TCPListenAddr = s.conf.TCPListenAddrs
+		proxyConf.ListenOnActivatedFDs = s.conf.ListenOnActivatedFDs
 
 		return nil
 	}
