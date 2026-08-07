@@ -57,6 +57,7 @@ require (
 	github.com/buger/jsonparser v1.2.0 // indirect
 	github.com/ccojocar/zxcvbn-go v1.0.4 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/coreos/go-systemd/v22 v22.7.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/felixge/httpsnoop v1.1.0 // indirect
 	github.com/fzipp/gocyclo v0.6.0 // indirect
@@ -120,6 +121,12 @@ require (
 	mvdan.cc/sh/v3 v3.13.1 // indirect
 	mvdan.cc/unparam v0.0.0-20251027182757-5beb8c8f8f15 // indirect
 )
+
+// NOTE:  Points at a personal fork that adds proxy.Config.ListenOnActivatedFDs
+// for systemd socket-activation support.  See the listen_on_activated_fds
+// option in internal/dnsforward for details.  Revert to upstream once (or if)
+// socket activation lands there.
+replace github.com/AdguardTeam/dnsproxy => github.com/beechfuzz/dnsproxy v0.1.0-socket-activation
 
 // NOTE:  Keep in sync with .gitignore.
 ignore (
