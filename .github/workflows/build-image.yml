@@ -51,10 +51,26 @@
       - 'name': 'Build and push image'
         # Reuses the existing release pipeline: build-release produces the
         # per-arch binaries under dist/, build-docker feeds them to
-        # docker/build.Dockerfile via `docker buildx build --push`.  Only
-        # DOCKER_IMAGE_NAME/DOCKER_PUSH are new here; everything else is the
-        # same as build.yml's build-release job.
+        # docker/build.Dockerfile via `docker buildx build --push`.
+        #
+        # VERSION must be set to something other than the Makefile's default
+        # ('v0.0.0'), or build-release.sh falls back to
+        # scripts/make/version.sh, whose 'development' channel path runs
+        # `git rev-list --count master..HEAD` -- a ref actions/checkout never
+        # creates on a tag-triggered run, so that fails outright.  Passing
+        # the pushed tag name directly avoids that (this is the same
+        # workaround build.yml's build-release job uses via
+        # VERSION="v0.0.0-github").
+        #
+        # CHANNEL must be 'release' (not the Makefile default,
+        # 'development'): scripts/make/build-docker.sh only emits any
+        # --tag flags at all for 'release'/'beta'/'edge' channels; for
+        # 'development' both the version and channel docker tags are left
+        # empty, which would build an untagged image and make --push fail.
+        # 'release' tags the image as both ":<tag>" and ":latest".
         'env':
+          'CHANNEL': 'release'
           'DOCKER_IMAGE_NAME': 'ghcr.io/beechfuzz/adguardhome'
           'DOCKER_PUSH': '1'
-        'run': 'make SIGN=0 VERBOSE=1 build-release build-docker'
+          'VERSION': '${{ github.ref_name }}'
+        'run': 'make SIGN=0 VERBOSE=1 CHANNEL="$CHANNEL" VERSION="$VERSION" build-release build-docker'
