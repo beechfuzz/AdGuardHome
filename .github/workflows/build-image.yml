@@ -1,14 +1,6 @@
-# DRAFT — not enabled.  Builds a container image from this fork's existing
-# docker/build.Dockerfile (via `make build-release build-docker`, the same
-# pipeline used by build.yml's build-release job) and pushes it to GHCR on
-# tag push.  Left un-merged pending manual review; see the socket-activation
-# PR description for context.
-#
-# This file lives outside .github/workflows/ on purpose: the CI token used
-# to push this branch lacks the `workflow` GitHub scope, so GitHub itself
-# rejects pushes that touch .github/workflows/.  To enable this workflow,
-# move it to .github/workflows/build-image.yml (drop the .draft suffix)
-# from a client with that scope, review it, then commit.
+# Builds a container image from this fork's existing docker/build.Dockerfile
+# (via `make build-release build-docker`, the same pipeline used by
+# build.yml's build-release job) and pushes it to GHCR on tag push.
 'name': 'build-image'
 'permissions': {}
 'env':
